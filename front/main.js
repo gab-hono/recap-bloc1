@@ -1,23 +1,17 @@
 // ==============================================
-// CONFIGURACIÓN Y VARIABLES GLOBALES
+// CONFIGURATION AND GLOBAL VARIABLES
 // ==============================================
 
 const API_URL = 'http://localhost:4242';
 
-// Mapeo de IDs de temas a nombres de secciones
-const THEME_MAPPING = {
-    1: 'Frontend',
-    2: 'Backend',
-    3: 'SpokenLang',
-    4: 'Frameworks'
-};
-
 // ==============================================
-// FUNCIONES DE UTILIDAD
+// UTILITY FUNCTIONS
 // ==============================================
 
 /**
- * Crea un elemento de skill con su barra de progreso
+ * Creates a skill element with its progress bar
+ * @param {Object} skill - The skill object containing id, skill name, and level
+ * @returns {HTMLElement} - The created list item element
  */
 function createSkillElement(skill) {
     const li = document.createElement('li');
@@ -44,7 +38,9 @@ function createSkillElement(skill) {
 }
 
 /**
- * Encuentra el contenedor de skills para un tema específico
+ * Finds the skills container for a specific theme
+ * @param {string} themeName - The name of the theme
+ * @returns {HTMLElement|null} - The skills container element or null if not found
  */
 function getThemeContainer(themeName) {
     const containers = document.querySelectorAll('.col');
@@ -60,11 +56,12 @@ function getThemeContainer(themeName) {
 }
 
 // ==============================================
-// FUNCIONES DE API
+// API FUNCTIONS
 // ==============================================
 
 /**
- * Obtiene todos los skills de la base de datos
+ * Fetches all skills from the database
+ * @returns {Promise<Array>} - Array of skill objects
  */
 async function fetchSkills() {
     try {
@@ -78,7 +75,8 @@ async function fetchSkills() {
 }
 
 /**
- * Obtiene todos los themes de la base de datos
+ * Fetches all themes from the database
+ * @returns {Promise<Array>} - Array of theme objects
  */
 async function fetchThemes() {
     try {
@@ -92,7 +90,9 @@ async function fetchThemes() {
 }
 
 /**
- * Crea un nuevo skill en la base de datos
+ * Creates a new skill in the database
+ * @param {Object} skillData - The skill data to create
+ * @returns {Promise<Object>} - The created skill object
  */
 async function createSkill(skillData) {
     try {
@@ -112,38 +112,17 @@ async function createSkill(skillData) {
     }
 }
 
-/**
- * Crea un nuevo theme en la base de datos
- */
-async function createTheme(themeName) {
-    try {
-        const response = await fetch(`${API_URL}/themes`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name: themeName })
-        });
-        
-        if (!response.ok) throw new Error('Failed to create theme');
-        return await response.json();
-    } catch (error) {
-        console.error('Error creating theme:', error);
-        throw error;
-    }
-}
-
 // ==============================================
-// FUNCIONES DE RENDERIZADO
+// RENDERING FUNCTIONS
 // ==============================================
 
 /**
- * Limpia todos los contenedores de skills
+ * Clears all skills containers
  */
 function clearAllSkills() {
     const containers = document.querySelectorAll('.skills-container');
     containers.forEach(container => {
-        // Solo limpiar si no es el formulario
+        // Only clear if it's not the form
         if (!container.closest('#add-skill-form')) {
             container.innerHTML = '';
         }
@@ -151,16 +130,16 @@ function clearAllSkills() {
 }
 
 /**
- * Renderiza todos los skills en sus respectivas secciones
+ * Renders all skills in their respective sections
  */
 async function renderSkills() {
     const skills = await fetchSkills();
     const themes = await fetchThemes();
     
-    // Limpiar skills existentes
+    // Clear existing skills
     clearAllSkills();
     
-    // Crear un mapa de theme_id a skills
+    // Create a map of theme_id to skills
     const skillsByTheme = {};
     
     skills.forEach(skill => {
@@ -170,7 +149,7 @@ async function renderSkills() {
         skillsByTheme[skill.theme_id].push(skill);
     });
     
-    // Renderizar skills en cada tema
+    // Render skills in each theme
     themes.forEach(theme => {
         const themeName = theme.name;
         const container = getThemeContainer(themeName);
@@ -185,16 +164,16 @@ async function renderSkills() {
 }
 
 /**
- * Actualiza el dropdown de temas con los datos de la base de datos
+ * Updates the theme dropdown with data from the database
  */
 async function updateThemeDropdown() {
     const themes = await fetchThemes();
     const select = document.getElementById('skill-theme');
     
-    // Limpiar opciones existentes excepto la primera
+    // Clear existing options except the first one
     select.innerHTML = '<option value="">Select a theme</option>';
     
-    // Agregar las opciones dinámicamente
+    // Add options dynamically
     themes.forEach(theme => {
         const option = document.createElement('option');
         option.value = theme.id;
@@ -204,11 +183,11 @@ async function updateThemeDropdown() {
 }
 
 // ==============================================
-// MANEJO DEL FORMULARIO
+// FORM HANDLING
 // ==============================================
 
 /**
- * Inicializa el slider de nivel
+ * Initializes the level slider
  */
 function initializeLevelSlider() {
     const levelSlider = document.getElementById('skill-level');
@@ -221,7 +200,8 @@ function initializeLevelSlider() {
 }
 
 /**
- * Maneja el envío del formulario
+ * Handles form submission
+ * @param {Event} e - The submit event
  */
 async function handleFormSubmit(e) {
     e.preventDefault();
@@ -233,7 +213,7 @@ async function handleFormSubmit(e) {
     const skillName = formData.get('skillName').trim();
     const skillLevel = parseInt(formData.get('skillLevel'));
     
-    // Validaciones
+    // Validations
     if (!themeId) {
         alert('Please select a theme');
         return;
@@ -245,21 +225,21 @@ async function handleFormSubmit(e) {
     }
     
     try {
-        // Crear el nuevo skill
+        // Create the new skill
         await createSkill({
             skill: skillName,
             level: skillLevel,
             theme_id: themeId
         });
         
-        // Mostrar mensaje de éxito
+        // Show success message
         alert('Skill added successfully!');
         
-        // Resetear el formulario
+        // Reset the form
         form.reset();
         document.getElementById('level-display').textContent = '0%';
         
-        // Re-renderizar los skills
+        // Re-render the skills
         await renderSkills();
         
     } catch (error) {
@@ -269,25 +249,25 @@ async function handleFormSubmit(e) {
 }
 
 // ==============================================
-// INICIALIZACIÓN
+// INITIALIZATION
 // ==============================================
 
 /**
- * Inicializa la aplicación cuando el DOM está listo
+ * Initializes the application when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Initializing application...');
     
-    // Inicializar el slider de nivel
+    // Initialize the level slider
     initializeLevelSlider();
     
-    // Actualizar el dropdown de temas
+    // Update the theme dropdown
     await updateThemeDropdown();
     
-    // Renderizar los skills iniciales
+    // Render the initial skills
     await renderSkills();
     
-    // Configurar el evento del formulario
+    // Set up form event listener
     const form = document.getElementById('add-skill-form');
     form.addEventListener('submit', handleFormSubmit);
     

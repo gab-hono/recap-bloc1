@@ -6,13 +6,22 @@ const { neon } = require('@neondatabase/serverless');
 const app = express();
 const PORT = process.env.PORT || 4242;
 
+// Middleware to parse JSON
 app.use(express.json());
+
+// Middleware for CORS
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 // ============================================
 // ROUTES FOR THEMES
 // ============================================
 
-// GET (get all themes)
+// GET - Fetch all themes
 app.get('/themes', async (_, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -23,8 +32,49 @@ app.get('/themes', async (_, res) => {
   }
 });
 
+// GET - Fetch a single theme by ID
+app.get('/themes/:id', async (req, res) => {
+  try {
+    const sql = neon(process.env.DATABASE_URL);
+    const { id } = req.params;
+    const response = await sql`SELECT * FROM "Themes" WHERE id = ${id}`;
+    
+    if (response.length === 0) {
+      return res.status(404).json({ error: 'Theme not found' });
+    }
+    
+    res.json(response[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-// PUT (Update a theme)
+// POST - Create a new theme
+app.post('/themes', async (req, res) => {
+  try {
+    const sql = neon(process.env.DATABASE_URL);
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ error: 'Field "name" is required' });
+    }
+
+    const response = await sql`
+      INSERT INTO "Themes" (name)
+      VALUES (${name})
+      RETURNING *
+    `;
+
+    res.status(201).json({
+      message: 'Theme created successfully',
+      data: response[0]
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT - Update a theme
 app.put('/themes/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -32,7 +82,7 @@ app.put('/themes/:id', async (req, res) => {
     const { name } = req.body;
 
     if (!name) {
-      return res.status(400).json({ error: 'You have to enter a name' });
+      return res.status(400).json({ error: 'Field "name" is required' });
     }
 
     const response = await sql`
@@ -47,7 +97,7 @@ app.put('/themes/:id', async (req, res) => {
     }
 
     res.json({
-      message: 'The theme has been succesfully updated',
+      message: 'Theme updated successfully',
       data: response[0]
     });
   } catch (error) {
@@ -55,7 +105,7 @@ app.put('/themes/:id', async (req, res) => {
   }
 });
 
-// DELETE (delete a theme)
+// DELETE - Remove a theme
 app.delete('/themes/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -72,7 +122,7 @@ app.delete('/themes/:id', async (req, res) => {
     }
 
     res.json({
-      message: 'Theme has been successfully deleted',
+      message: 'Theme deleted successfully',
       data: response[0]
     });
   } catch (error) {
@@ -84,27 +134,80 @@ app.delete('/themes/:id', async (req, res) => {
 // ROUTES FOR SKILLS
 // ============================================
 
-// GET (get all the skills)
+// GET - Fetch all skills
 app.get('/skills', async (_, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
-    const response = await sql`SELECT * FROM "Skills" ORDER BY id`;
+    const response = await sql`SELECT * FROM "Skills" ORDER BY theme_id, id`;
     res.json(response);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// PUT (update a skill)
+// GET - Fetch a single skill by ID
+app.get('/skills/:id', async (req, res) => {
+  try {
+    const sql = neon(process.env.DATABASE_URL);
+    const { id } = req.params;
+    const response = await sql`SELECT * FROM "Skills" WHERE id = ${id}`;
+    
+    if (response.length === 0) {
+      return res.status(404).json({ error: 'Skill not found' });
+    }
+    
+    res.json(response[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST - Create a new skill
+app.post('/skills', async (req, res) => {
+  try {
+    const sql = neon(process.env.DATABASE_URL);
+    const { skill, level, theme_id } = req.body;
+
+    // Validations
+    if (!skill || level === undefined || !theme_id) {
+      return res.status(400).json({ 
+        error: 'Fields "skill", "level", and "theme_id" are required' 
+      });
+    }
+
+    if (level < 0 || level > 100) {
+      return res.status(400).json({ 
+        error: 'Level must be between 0 and 100' 
+      });
+    }
+
+    const response = await sql`
+      INSERT INTO "Skills" (skill, level, theme_id)
+      VALUES (${skill}, ${level}, ${theme_id})
+      RETURNING *
+    `;
+
+    res.status(201).json({
+      message: 'Skill created successfully',
+      data: response[0]
+    });
+  } catch (error) {
+    console.error('Error creating skill:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT - Update a skill
 app.put('/skills/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const { id } = req.params;
-    const { skill, level } = req.body;
+    const { skill, level, theme_id } = req.body;
 
-    if (!skill && level === undefined) {
+    // Validations
+    if (!skill && level === undefined && !theme_id) {
       return res.status(400).json({ 
-        error: 'You have to add a skill name and a level' 
+        error: 'You must provide at least "skill", "level", or "theme_id"' 
       });
     }
 
@@ -114,8 +217,16 @@ app.put('/skills/:id', async (req, res) => {
       });
     }
 
+    // Build the update query dynamically
     let updateQuery;
-    if (skill && level !== undefined) {
+    if (skill && level !== undefined && theme_id) {
+      updateQuery = await sql`
+        UPDATE "Skills" 
+        SET skill = ${skill}, level = ${level}, theme_id = ${theme_id}
+        WHERE id = ${id}
+        RETURNING *
+      `;
+    } else if (skill && level !== undefined) {
       updateQuery = await sql`
         UPDATE "Skills" 
         SET skill = ${skill}, level = ${level}
@@ -129,21 +240,28 @@ app.put('/skills/:id', async (req, res) => {
         WHERE id = ${id}
         RETURNING *
       `;
-    } else {
+    } else if (level !== undefined) {
       updateQuery = await sql`
         UPDATE "Skills" 
         SET level = ${level}
         WHERE id = ${id}
         RETURNING *
       `;
+    } else if (theme_id) {
+      updateQuery = await sql`
+        UPDATE "Skills" 
+        SET theme_id = ${theme_id}
+        WHERE id = ${id}
+        RETURNING *
+      `;
     }
 
     if (updateQuery.length === 0) {
-      return res.status(404).json({ error: 'Skill no encontrado' });
+      return res.status(404).json({ error: 'Skill not found' });
     }
 
     res.json({
-      message: 'Skill actualizado exitosamente',
+      message: 'Skill updated successfully',
       data: updateQuery[0]
     });
   } catch (error) {
@@ -151,7 +269,7 @@ app.put('/skills/:id', async (req, res) => {
   }
 });
 
-// DELETE (delete a skill)
+// DELETE - Remove a skill
 app.delete('/skills/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -164,11 +282,11 @@ app.delete('/skills/:id', async (req, res) => {
     `;
 
     if (response.length === 0) {
-      return res.status(404).json({ error: 'Skill no encontrado' });
+      return res.status(404).json({ error: 'Skill not found' });
     }
 
     res.json({
-      message: 'Skill eliminado exitosamente',
+      message: 'Skill deleted successfully',
       data: response[0]
     });
   } catch (error) {
@@ -177,22 +295,24 @@ app.delete('/skills/:id', async (req, res) => {
 });
 
 // ============================================
-// Root
+// ROOT ENDPOINT
 // ============================================
 
 app.get('/', (_, res) => {
   res.json({ 
-    message: 'API de Skills y Themes ✅',
+    message: 'Skills and Themes API ✅',
     endpoints: {
       themes: {
         getAll: 'GET /themes',
         getOne: 'GET /themes/:id',
+        create: 'POST /themes',
         update: 'PUT /themes/:id',
         delete: 'DELETE /themes/:id'
       },
       skills: {
         getAll: 'GET /skills',
         getOne: 'GET /skills/:id',
+        create: 'POST /skills',
         update: 'PUT /skills/:id',
         delete: 'DELETE /skills/:id'
       }
