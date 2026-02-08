@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css"/>
+        <title>Gabriel Hono - Portfolio</title>
+    </head>
+
+    <body>
+
+     <!-- Main site header containing the primary heading -->
+     <header class="page-header">
+        <h1 class="title">Gabriel's Portfolio</h1>
+     </header> 
+
+     <!-- Main content area of the page -->
+     <main class="container">
+
+        <!-- Introduction section with page title and description -->
+        <header class="main-title">
+            <h2>My skills</h2>
+            <p>This page resumes my skills and level of progression on each subject</p>
+        </header>
+
+        <!-- Skills display section with different themes -->
+        <section class="row" aria-label="Skills Overview">
+            
+            <!-- Frontend skills section -->
+            <article class="col" aria-labelledby="frontendTheme">
+                
+                <!-- Frontend section heading -->
+                <header id="frontendTheme" class="theme">
+                    <h3>Frontend</h3>
+                </header>
+
+                <!-- List of frontend skills with progress indicators -->
+                <ul class="skills-container">
+
+                    <!-- HTML5 skill item -->
+                    <li class="skill">
+                        <label class="subject" id="html5-label">HTML5</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="80" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="html5-label"
+                             aria-label="HTML5 proficiency: 80 percent"
+                             value="80%">
+                            <span class="progress-line" style="max-width: 80%"></span>
+                        </div>
+                    </li>
+
+                    <!-- CSS skill item -->
+                    <li class="skill">
+                        <label class="subject" id="css-label">CSS</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="85" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="css-label"
+                             aria-label="CSS proficiency: 85 percent"
+                             value="85%">
+                            <span class="progress-line" style="max-width: 85%"></span>
+                        </div>
+                    </li>
+
+                    <!-- JavaScript skill item -->
+                    <li class="skill">
+                        <label class="subject" id="javascript-label">JavaScript</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="90" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="javascript-label"
+                             aria-label="JavaScript proficiency: 90 percent"
+                             value="90%">
+                            <span class="progress-line" style="max-width: 90%"></span>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </article>
+
+            <!-- Backend skills section -->
+            <article class="col" aria-labelledby="backendTheme">
+                
+                <!-- Backend section heading -->
+                <header id="backendTheme" class="theme">
+                    <h3>Backend</h3>
+                </header>
+
+                <!-- List of backend skills with progress indicators -->
+                <ul class="skills-container">
+
+                    <!-- ExpressJS skill item -->
+                    <li class="skill">
+                        <label class="subject" id="expressjs-label">ExpressJS</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="40" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="expressjs-label"
+                             aria-label="ExpressJS proficiency: 40 percent"
+                             value="40%">
+                            <span class="progress-line" style="max-width: 40%"></span>
+                        </div>
+                    </li>
+
+                    <!-- PostgreSQL skill item -->
+                    <li class="skill">
+                        <label class="subject" id="postgresql-label">PostgreSQL</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="60" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="postgresql-label"
+                             aria-label="PostgreSQL proficiency: 60 percent"
+                             value="60%">
+                            <span class="progress-line" style="max-width: 60%"></span>
+                        </div>
+                    </li>
+
+                    <!-- API Rest skill item -->
+                    <li class="skill">
+                        <label class="subject" id="apirest-label">API Rest</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="60" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="apirest-label"
+                             aria-label="API Rest proficiency: 60 percent"
+                             value="60%">
+                            <span class="progress-line" style="max-width: 60%"></span>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </article>
+
+            <!-- Spoken languages section -->
+            <article class="col" aria-labelledby="softskillTheme">
+                
+                <!-- Spoken languages section heading -->
+                <header id="softskillTheme" class="theme">
+                    <h3>Spoken Languages</h3>
+                </header>
+
+                <!-- List of Spoken Languages with progress indicators -->
+                <ul class="skills-container">
+
+                    <!-- English skill item -->
+                    <li class="skill">
+                        <label class="subject" id="english-label">English</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="95" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="english-label"
+                             aria-label="English proficiency: 95 percent"
+                             value="95%">
+                            <span class="progress-line" style="max-width: 95%"></span>
+                        </div>
+                    </li>
+
+                    <!-- French skill item -->
+                    <li class="skill">
+                        <label class="subject" id="french-label">French</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="85" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="french-label"
+                             aria-label="French proficiency: 85 percent"
+                             value="85%">
+                            <span class="progress-line" style="max-width: 85%"></span>
+                        </div>
+                    </li>
+
+                    <!-- Spanish skill item -->
+                    <li class="skill">
+                        <label class="subject" id="spanish-label">Spanish</label>
+                        <!-- Progress bar with ARIA attributes for screen readers -->
+                        <div class="progress-bar" 
+                             role="progressbar" 
+                             aria-valuenow="100" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"
+                             aria-labelledby="spanish-label"
+                             aria-label="API Rest proficiency: 100 percent"
+                             value="100%">
+                            <span class="progress-line" style="max-width: 100%"></span>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </article>
+
+        </section>
+
+        <!-- Form section to add new skills -->
+        <section class="row" aria-labelledby="add-skill-heading">
+            
+            <article class="col col-full">
+                
+                <!-- Form heading -->
+                <header class="theme">
+                    <h3 id="add-skill-heading">Add New Skill</h3>
+                </header>
+
+                <!-- Form for adding a new skill -->
+                <form class="skills-container" id="add-skill-form" aria-label="Add new skill form">
+                    
+                    <!-- Theme selection dropdown -->
+                    <div class="skill">
+                        <label for="skill-theme" class="subject">Theme</label>
+                        <select id="skill-theme" name="theme" required aria-required="true">
+                            <option value="">Select a theme</option>
+                            <option value="frontend">Frontend</option>
+                            <option value="backend">Backend</option>
+                            <option value="spoken-languages">Spoken Languages</option>
+                        </select>
+                    </div>
+
+                    <!-- Skill name input -->
+                    <div class="skill">
+                        <label for="skill-name" class="subject">Skill Name</label>
+                        <input 
+                            type="text" 
+                            id="skill-name" 
+                            name="skillName" 
+                            placeholder="e.g., React, Node.js, new spoken language ..."
+                            required 
+                            aria-required="true"
+                            maxlength="50">
+                    </div>
+
+                    <!-- Progress level input -->
+                    <div class="skill">
+                        <label for="skill-level" class="subject">
+                            Progress Level 
+                            <span id="level-display" aria-live="polite">0%</span>
+                        </label>
+                        <input 
+                            type="range" 
+                            id="skill-level" 
+                            name="skillLevel" 
+                            min="0" 
+                            max="100" 
+                            value="0"
+                            step="5"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            aria-valuenow="0"
+                            aria-label="Select skill proficiency level">
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="skill">
+                        <button type="submit" class="submit-btn">Add Skill</button>
+                    </div>
+
+                </form>
+
+            </article>
+
+        </section>
+
+     </main>
+
+     <!-- Footer section for site-wide links or copyright info -->
+     <footer>
+        <!-- Footer content can be added here -->
+     </footer>
+     
+    </body>
+</html>
