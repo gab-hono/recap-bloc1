@@ -140,7 +140,7 @@ body{
 }
 .progress-bar::after{
 	position: absolute;
-	content: attr(value);
+	content: attr(data-value);
 	top: -35px;
 	right: 0;
 	color: #808080;

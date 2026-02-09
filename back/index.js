@@ -6,16 +6,8 @@ const { neon } = require('@neondatabase/serverless');
 const app = express();
 const PORT = process.env.PORT || 4242;
 
-// Middleware to parse JSON
 app.use(express.json());
 
-// Middleware for CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
 
 // ============================================
 // ROUTES FOR THEMES
@@ -49,7 +41,7 @@ app.get('/themes/:id', async (req, res) => {
   }
 });
 
-// POST - Create a new theme
+/* // POST - Create a new theme (sin usar en front)
 app.post('/themes', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -72,7 +64,7 @@ app.post('/themes', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 // PUT - Update a theme
 app.put('/themes/:id', async (req, res) => {
@@ -105,7 +97,7 @@ app.put('/themes/:id', async (req, res) => {
   }
 });
 
-// DELETE - Remove a theme
+/* // DELETE - Remove a theme
 app.delete('/themes/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -128,13 +120,13 @@ app.delete('/themes/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 // ============================================
 // ROUTES FOR SKILLS
 // ============================================
 
-// GET - Fetch all skills
+/* // GET - Fetch all skills
 app.get('/skills', async (_, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -160,7 +152,7 @@ app.get('/skills/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 // POST - Create a new skill
 app.post('/skills', async (req, res) => {
@@ -197,7 +189,7 @@ app.post('/skills', async (req, res) => {
   }
 });
 
-// PUT - Update a skill
+/* // PUT - Update a skill
 app.put('/skills/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
@@ -267,10 +259,10 @@ app.put('/skills/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 // DELETE - Remove a skill
-app.delete('/skills/:id', async (req, res) => {
+/* app.delete('/skills/:id', async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
     const { id } = req.params;
@@ -292,7 +284,7 @@ app.delete('/skills/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 // ============================================
 // ROOT ENDPOINT

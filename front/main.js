@@ -8,11 +8,7 @@ const API_URL = 'http://localhost:4242';
 // UTILITY FUNCTIONS
 // ==============================================
 
-/**
- * Creates a skill element with its progress bar
- * @param {Object} skill - The skill object containing id, skill name, and level
- * @returns {HTMLElement} - The created list item element
- */
+// Creates a skill HTML element with a progress bar
 function createSkillElement(skill) {
     const li = document.createElement('li');
     li.className = 'skill';
@@ -29,7 +25,7 @@ function createSkillElement(skill) {
              aria-valuemax="100"
              aria-labelledby="${labelId}"
              aria-label="${skill.skill} proficiency: ${skill.level} percent"
-             value="${skill.level}%">
+             data-value="${skill.level}%">
             <span class="progress-line" style="max-width: ${skill.level}%"></span>
         </div>
     `;
@@ -37,11 +33,7 @@ function createSkillElement(skill) {
     return li;
 }
 
-/**
- * Finds the skills container for a specific theme
- * @param {string} themeName - The name of the theme
- * @returns {HTMLElement|null} - The skills container element or null if not found
- */
+// Finds the container (ul element) for a specific theme section
 function getThemeContainer(themeName) {
     const containers = document.querySelectorAll('.col');
     
@@ -52,6 +44,7 @@ function getThemeContainer(themeName) {
         }
     }
     
+    console.warn(`Theme container not found for: ${themeName}`);
     return null;
 }
 
@@ -59,43 +52,44 @@ function getThemeContainer(themeName) {
 // API FUNCTIONS
 // ==============================================
 
-/**
- * Fetches all skills from the database
- * @returns {Promise<Array>} - Array of skill objects
- */
+// Gets all skills from the database
 async function fetchSkills() {
     try {
         const response = await fetch(`${API_URL}/skills`);
-        if (!response.ok) throw new Error('Failed to fetch skills');
-        return await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Skills fetched:', data);
+        return data;
     } catch (error) {
         console.error('Error fetching skills:', error);
+        alert('Error loading skills. Make sure the backend is running on port 4242.');
         return [];
     }
 }
 
-/**
- * Fetches all themes from the database
- * @returns {Promise<Array>} - Array of theme objects
- */
+// Gets all themes from the database
 async function fetchThemes() {
     try {
         const response = await fetch(`${API_URL}/themes`);
-        if (!response.ok) throw new Error('Failed to fetch themes');
-        return await response.json();
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Themes fetched:', data);
+        return data;
     } catch (error) {
         console.error('Error fetching themes:', error);
+        alert('Error loading themes. Make sure the backend is running on port 4242.');
         return [];
     }
 }
 
-/**
- * Creates a new skill in the database
- * @param {Object} skillData - The skill data to create
- * @returns {Promise<Object>} - The created skill object
- */
+// Sends a new skill to the database
 async function createSkill(skillData) {
     try {
+        console.log('Creating skill with data:', skillData);
         const response = await fetch(`${API_URL}/skills`, {
             method: 'POST',
             headers: {
@@ -104,8 +98,14 @@ async function createSkill(skillData) {
             body: JSON.stringify(skillData)
         });
         
-        if (!response.ok) throw new Error('Failed to create skill');
-        return await response.json();
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to create skill');
+        }
+        
+        const data = await response.json();
+        console.log('Skill created:', data);
+        return data;
     } catch (error) {
         console.error('Error creating skill:', error);
         throw error;
@@ -116,9 +116,7 @@ async function createSkill(skillData) {
 // RENDERING FUNCTIONS
 // ==============================================
 
-/**
- * Clears all skills containers
- */
+// Removes all skill items from the page (but not the form)
 function clearAllSkills() {
     const containers = document.querySelectorAll('.skills-container');
     containers.forEach(container => {
@@ -129,25 +127,33 @@ function clearAllSkills() {
     });
 }
 
-/**
- * Renders all skills in their respective sections
- */
+// Displays all skills in their correct theme sections
 async function renderSkills() {
     const skills = await fetchSkills();
     const themes = await fetchThemes();
+    
+    console.log('Rendering skills...', { skills, themes });
     
     // Clear existing skills
     clearAllSkills();
     
     // Create a map of theme_id to skills
+    // Example: { 1: [skill1, skill2], 2: [skill3, skill4] }
     const skillsByTheme = {};
     
     skills.forEach(skill => {
+        if (!skill.theme_id) {
+            console.warn('Skill without theme_id:', skill);
+            return;
+        }
+        
         if (!skillsByTheme[skill.theme_id]) {
             skillsByTheme[skill.theme_id] = [];
         }
         skillsByTheme[skill.theme_id].push(skill);
     });
+    
+    console.log('Skills grouped by theme:', skillsByTheme);
     
     // Render skills in each theme
     themes.forEach(theme => {
@@ -155,20 +161,26 @@ async function renderSkills() {
         const container = getThemeContainer(themeName);
         
         if (container && skillsByTheme[theme.id]) {
+            console.log(`Rendering ${skillsByTheme[theme.id].length} skills for theme: ${themeName}`);
             skillsByTheme[theme.id].forEach(skill => {
                 const skillElement = createSkillElement(skill);
                 container.appendChild(skillElement);
             });
+        } else if (container) {
+            console.log(`No skills found for theme: ${themeName}`);
         }
     });
 }
 
-/**
- * Updates the theme dropdown with data from the database
- */
+// Fills the dropdown with theme options from the database
 async function updateThemeDropdown() {
     const themes = await fetchThemes();
     const select = document.getElementById('skill-theme');
+    
+    if (!select) {
+        console.error('Theme select element not found!');
+        return;
+    }
     
     // Clear existing options except the first one
     select.innerHTML = '<option value="">Select a theme</option>';
@@ -180,29 +192,32 @@ async function updateThemeDropdown() {
         option.textContent = theme.name;
         select.appendChild(option);
     });
+    
+    console.log(`Theme dropdown updated with ${themes.length} themes`);
 }
 
 // ==============================================
 // FORM HANDLING
 // ==============================================
 
-/**
- * Initializes the level slider
- */
+// Makes the slider show the percentage as you move it
 function initializeLevelSlider() {
     const levelSlider = document.getElementById('skill-level');
     const levelDisplay = document.getElementById('level-display');
     
+    if (!levelSlider || !levelDisplay) {
+        console.error('Level slider elements not found!');
+        return;
+    }
+    
     levelSlider.addEventListener('input', (e) => {
         levelDisplay.textContent = `${e.target.value}%`;
-        levelSlider.setAttribute('aria-valuenow', e.target.value);
     });
+    
+    console.log('Level slider initialized');
 }
 
-/**
- * Handles form submission
- * @param {Event} e - The submit event
- */
+// Runs when the user submits the "Add New Skill" form
 async function handleFormSubmit(e) {
     e.preventDefault();
     
@@ -212,6 +227,8 @@ async function handleFormSubmit(e) {
     const themeId = parseInt(formData.get('theme'));
     const skillName = formData.get('skillName').trim();
     const skillLevel = parseInt(formData.get('skillLevel'));
+    
+    console.log('Form submitted with:', { themeId, skillName, skillLevel });
     
     // Validations
     if (!themeId) {
@@ -243,7 +260,7 @@ async function handleFormSubmit(e) {
         await renderSkills();
         
     } catch (error) {
-        alert('Error adding skill. Please try again.');
+        alert(`Error adding skill: ${error.message}`);
         console.error('Error:', error);
     }
 }
@@ -252,11 +269,9 @@ async function handleFormSubmit(e) {
 // INITIALIZATION
 // ==============================================
 
-/**
- * Initializes the application when DOM is ready
- */
+// Runs when the page finishes loading
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('Initializing application...');
+    console.log('=== Initializing application ===');
     
     // Initialize the level slider
     initializeLevelSlider();
@@ -269,7 +284,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Set up form event listener
     const form = document.getElementById('add-skill-form');
-    form.addEventListener('submit', handleFormSubmit);
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+        console.log('Form event listener attached');
+    } else {
+        console.error('Form element not found!');
+    }
     
-    console.log('Application initialized successfully!');
+    console.log('=== Application initialized successfully ===');
 });
